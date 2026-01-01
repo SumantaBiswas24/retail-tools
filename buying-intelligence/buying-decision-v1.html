@@ -22,7 +22,7 @@ padding:1rem;
 }
 
 .container{
-max-width:560px;
+max-width:580px;
 margin:auto;
 }
 
@@ -46,7 +46,7 @@ label{
 font-size:.8rem;
 color:#64748b;
 display:block;
-margin-bottom:.2rem;
+margin-bottom:.3rem;
 }
 
 input,select{
@@ -60,11 +60,12 @@ font-size:1rem;
 .toggle{
 display:flex;
 gap:.4rem;
+margin-top:.3rem;
 }
 
 .toggle button{
 flex:1;
-padding:.6rem;
+padding:.5rem;
 border-radius:8px;
 border:1px solid #cbd5e1;
 background:#fff;
@@ -146,11 +147,11 @@ small{color:#64748b;}
 <div class="row">
 <div>
 <label>Buying Price</label>
-<input type="number" id="buy" placeholder="₹">
+<input type="number" id="buyPrice" placeholder="₹">
 </div>
 <div>
 <label>Selling Price</label>
-<input type="number" id="sell" placeholder="₹">
+<input type="number" id="sellPrice" placeholder="₹">
 </div>
 </div>
 
@@ -221,7 +222,13 @@ accessories:["Belt","Wallet","Cap","Other"],
 footwear:["Shoes","Sandals","Slippers","Other"]
 };
 
-const rules={shirts:35,jeans:40,tshirt:45,accessories:50,footwear:30};
+const rules={
+shirts:35,
+jeans:40,
+tshirt:45,
+accessories:50,
+footwear:30
+};
 
 function setExpenseType(btn,type){
 expenseType=type;
@@ -230,73 +237,85 @@ btn.classList.add('active');
 }
 
 function loadProducts(){
-const cat=category.value;
-product.innerHTML='<option value="">Select product</option>';
+const cat=document.getElementById('category').value;
+const prod=document.getElementById('product');
+prod.innerHTML='<option value="">Select product</option>';
 if(!products[cat]) return;
 products[cat].forEach(p=>{
 const opt=document.createElement('option');
 opt.value=p;
-opt.text=p;
-product.appendChild(opt);
+opt.textContent=p;
+prod.appendChild(opt);
 });
 }
 
 function analyze(){
-const buy=+buy.value||0;
-const sell=+sell.value||0;
-const gst=+gst.value;
-const exp=+expense.value||0;
-const cat=category.value;
-const prod=product.value;
+const buyVal = +document.getElementById('buyPrice').value || 0;
+const sellVal = +document.getElementById('sellPrice').value || 0;
+const gstVal = +document.getElementById('gst').value || 0;
+const expVal = +document.getElementById('expense').value || 0;
+const catVal = document.getElementById('category').value;
+const prodVal = document.getElementById('product').value;
 
-if(!buy||!sell||!cat||!prod) return;
+if(!buyVal || !sellVal || !catVal || !prodVal) return;
 
-let cost=buy+(buy*gst/100);
-if(expenseType==="amount") cost+=exp;
-else cost+=buy*(exp/100);
+let cost = buyVal + (buyVal * gstVal / 100);
+if(expenseType==="amount") cost += expVal;
+else cost += buyVal * (expVal / 100);
 
-const profit=sell-cost;
-const margin=(profit/sell)*100;
-const req=rules[cat];
+const profit = sellVal - cost;
+const margin = (profit / sellVal) * 100;
+const req = rules[catVal];
 
 let status,qty,cls,score=0;
-score+=Math.min(margin,60);
-if(gst>12) score-=10;
-if(profit<100) score-=10;
-if(margin<req) score-=20;
-score=Math.max(0,Math.round(score));
 
-if(margin>=req+5){status="GOOD BUY";qty="20–30 units";cls="good";}
-else if(margin>=req){status="RISKY BUY";qty="8–15 units";cls="risk";}
-else{status="AVOID BUYING";qty="0 units";cls="bad";}
+score += Math.min(margin,60);
+if(gstVal>12) score -=10;
+if(profit<100) score -=10;
+if(margin<req) score -=20;
+score = Math.max(0,Math.round(score));
 
-output.innerHTML=`
+if(margin>=req+5){
+status="GOOD BUY"; qty="20–30 units"; cls="good";
+}else if(margin>=req){
+status="RISKY BUY"; qty="8–15 units"; cls="risk";
+}else{
+status="AVOID BUYING"; qty="0 units"; cls="bad";
+}
+
+document.getElementById('output').innerHTML=`
 <div class="score ${cls}">${score}/100</div>
 <div class="badge bg-${cls}">${status}</div>
-<p><b>Category:</b> ${cat} | <b>Product:</b> ${prod}</p>
+<p><b>Category:</b> ${catVal} | <b>Product:</b> ${prodVal}</p>
 <p><b>Final Cost:</b> ₹${cost.toFixed(0)}</p>
 <p><b>Profit:</b> ₹${profit.toFixed(0)}</p>
 <p><b>Margin:</b> ${margin.toFixed(1)}%</p>
 <p><b>Recommended Qty:</b> ${qty}</p>
 `;
 
-saveHistory({cat,prod,margin,status});
+saveHistory({cat:catVal,prod:prodVal,margin,status});
 renderHistory();
 }
 
-function saveHistory(i){
+function saveHistory(item){
 let h=JSON.parse(localStorage.getItem("buyHistory"))||[];
-h.unshift({...i,id:Date.now()});
+h.unshift({...item,id:Date.now()});
 h=h.slice(0,20);
 localStorage.setItem("buyHistory",JSON.stringify(h));
 }
 
 function renderHistory(){
 let h=JSON.parse(localStorage.getItem("buyHistory"))||[];
-history.innerHTML=h.map(i=>`
+document.getElementById('history').innerHTML=h.map(i=>`
 <div class="history-item">
-<div><b>${i.cat}</b><br><small>${i.prod}</small></div>
-<div class="badge ${i.status.includes("GOOD")?"bg-good":i.status.includes("RISK")?"bg-risk":"bg-bad"}">
+<div>
+<b>${i.cat}</b><br>
+<small>${i.prod}</small>
+</div>
+<div class="badge ${
+i.status.includes("GOOD")?"bg-good":
+i.status.includes("RISK")?"bg-risk":"bg-bad"
+}">
 ${i.status}
 </div>
 </div>
