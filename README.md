@@ -30,3 +30,29 @@ Tools are organized into clear categories so they are easy to find and use.
 - GST & Tax Tools
 - Planning & Operations Tools
 - Templates & Utilities
+
+---
+
+## Goals of This Project
+
+- Keep tools simple and practical
+- Solve real retail problems
+- Make tools reusable across websites
+- Avoid unnecessary complexity
+- Build a growing toolbox for retailers
+
+---
+
+## Notes
+
+- This project is continuously evolving
+- New tools will be added category-wise
+- Suggestions and improvements are welcome
+
+---
+
+## Maintained By
+
+Sumanta Biswas  
+Retail & Digital Consultant
+
