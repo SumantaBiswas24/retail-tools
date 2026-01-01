@@ -9,7 +9,7 @@ not complexity.
 
 ---
 
-## 🎯 Who These Tools Are For
+## Who These Tools Are For
 
 - Retail shop owners
 - Store managers & supervisors
@@ -19,7 +19,7 @@ not complexity.
 
 ---
 
-## 🧩 Tool Categories
+## Tool Categories
 
 Tools are organized into clear categories so they are easy to find and use.
 
