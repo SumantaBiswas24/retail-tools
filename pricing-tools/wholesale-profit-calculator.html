@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wholesale Profit Calculator</title>
+
+<style>
+:root {
+  --primary:#2563eb;
+  --success:#22c55e;
+  --danger:#ef4444;
+  --bg:#f8fafc;
+  --card:#ffffff;
+}
+
+body {
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg);
+  margin:0;
+  padding:1rem;
+  color:#1e293b;
+}
+
+.container {
+  max-width:480px;
+  margin:auto;
+  padding-bottom:80px;
+}
+
+h2 {
+  text-align:center;
+  margin-bottom:1.5rem;
+}
+
+.card {
+  background:var(--card);
+  padding:1.5rem;
+  border-radius:16px;
+  border:1px solid #e2e8f0;
+  box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+.input-group {
+  margin-bottom:1.2rem;
+}
+
+label {
+  font-size:.85rem;
+  color:#64748b;
+  display:block;
+  margin-bottom:.5rem;
+}
+
+input {
+  width:100%;
+  padding:1rem;
+  font-size:1.2rem;
+  border:2px solid #e2e8f0;
+  border-radius:12px;
+}
+
+.gst-options {
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+
+.gst-btn {
+  flex:1;
+  padding:.6rem;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  background:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.gst-btn.active {
+  background:var(--primary);
+  color:#fff;
+  border-color:var(--primary);
+}
+
+.helper-text {
+  font-size:.8rem;
+  color:#94a3b8;
+  text-align:right;
+  margin-top:4px;
+}
+
+.results-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+  margin-top:1rem;
+  padding-top:1rem;
+  border-top:1px dashed #cbd5e1;
+}
+
+.stat-box {
+  text-align:center;
+}
+
+.stat-label {
+  font-size:.8rem;
+  color:#64748b;
+}
+
+.stat-value {
+  font-size:1.5rem;
+  font-weight:800;
+}
+
+.profit { color:var(--success); }
+.loss { color:var(--danger); }
+
+.action-btn {
+  width:100%;
+  padding:1rem;
+  margin-top:.8rem;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.save-btn { background:#0f172a; color:#fff; }
+.print-btn { background:#e5e7eb; }
+.share-btn { background:#dcfce7; }
+
+.history-item {
+  background:#fff;
+  padding:1rem;
+  border-radius:12px;
+  margin-top:.8rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.1);
+}
+
+.badge {
+  padding:4px 8px;
+  border-radius:6px;
+  font-weight:700;
+}
+
+.bg-green { background:#dcfce7; color:#166534; }
+.bg-red { background:#fee2e2; color:#991b1b; }
+
+.delete-btn {
+  background:none;
+  border:none;
+  font-size:1.2rem;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Wholesale Profit Calculator</h2>
+
+<div class="card" id="card">
+<div class="input-group">
+<label>Wholesale Price</label>
+<input type="number" id="basePrice" placeholder="0">
+<div class="gst-options">
+<button class="gst-btn active" onclick="setGst(this,0)">No Tax</button>
+<button class="gst-btn" onclick="setGst(this,5)">5%</button>
+<button class="gst-btn" onclick="setGst(this,12)">12%</button>
+<button class="gst-btn" onclick="setGst(this,18)">18%</button>
+</div>
+<div class="helper-text" id="finalCost">Final Cost: ₹0</div>
+</div>
+
+<div class="input-group">
+<label>Selling Price</label>
+<input type="number" id="sellPrice" placeholder="0">
+</div>
+
+<div class="results-grid">
+<div class="stat-box">
+<span class="stat-label">Profit</span>
+<span class="stat-value" id="profit">₹0</span>
+</div>
+<div class="stat-box">
+<span class="stat-label">Margin</span>
+<span class="stat-value" id="margin">0%</span>
+</div>
+</div>
+</div>
+
+<button class="action-btn save-btn" onclick="saveItem()">Save</button>
+<button class="action-btn print-btn" onclick="printResult()">Print</button>
+<button class="action-btn share-btn" onclick="shareResult()">Share</button>
+
+<div id="history"></div>
+</div>
+
+<script>
+let gst=0;
+
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',calculate));
+
+function setGst(btn,rate){
+gst=rate;
+document.querySelectorAll('.gst-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+calculate();
+}
+
+function calculate(){
+const base=+basePrice.value||0;
+const sell=+sellPrice.value||0;
+const cost=base+(base*gst/100);
+finalCost.innerText=`Final Cost: ₹${cost.toFixed(2)}`;
+
+const profit=sell-cost;
+const margin=sell?((profit/sell)*100):0;
+
+profitEl=profit>=0?'profit':'loss';
+profitText=document.getElementById('profit');
+marginText=document.getElementById('margin');
+
+profitText.innerText=`₹${profit.toFixed(0)}`;
+marginText.innerText=`${margin.toFixed(1)}%`;
+
+profitText.className=`stat-value ${profitEl}`;
+marginText.className=`stat-value ${profitEl}`;
+
+return{cost,sell,profit,margin};
+}
+
+function saveItem(){
+const d=calculate();
+if(!d.sell||!d.cost) return;
+
+let h=JSON.parse(localStorage.getItem('retailHistory'))||[];
+h.unshift({...d,id:Date.now()});
+h=h.slice(0,50);
+localStorage.setItem('retailHistory',JSON.stringify(h));
+renderHistory();
+}
+
+function renderHistory(){
+const h=JSON.parse(localStorage.getItem('retailHistory'))||[];
+history.innerHTML=h.map(i=>`
+<div class="history-item">
+<div>Buy ₹${i.cost.toFixed(0)}<br>Sell ₹${i.sell}</div>
+<div class="badge ${i.margin>=0?'bg-green':'bg-red'}">${i.margin.toFixed(1)}%</div>
+<button class="delete-btn" onclick="del(${i.id})">×</button>
+</div>`).join('');
+}
+
+function del(id){
+let h=JSON.parse(localStorage.getItem('retailHistory'))||[];
+h=h.filter(i=>i.id!==id);
+localStorage.setItem('retailHistory',JSON.stringify(h));
+renderHistory();
+}
+
+function printResult(){
+window.print();
+}
+
+function shareResult(){
+const d=calculate();
+const text=`Wholesale Check:
+Buy: ₹${d.cost.toFixed(0)}
+Sell: ₹${d.sell}
+Profit: ₹${d.profit.toFixed(0)}
+Margin: ${d.margin.toFixed(1)}%`;
+
+navigator.share ? navigator.share({text}) : alert(text);
+}
+
+renderHistory();
+</script>
+
+</body>
+</html>
