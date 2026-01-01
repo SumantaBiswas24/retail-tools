@@ -30,6 +30,3 @@ Tools are organized into clear categories so they are easy to find and use.
 - GST & Tax Tools
 - Planning & Operations Tools
 - Templates & Utilities
-
-Each folder contains independent tools that can be used online or embedded into
-websites when needed.
